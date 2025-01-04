@@ -1,3 +1,7 @@
+using Blazored.LocalStorage;
+using CarRental.FrontEnd.Authentication;
+using CarRental.FrontEnd.Options;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -11,7 +15,20 @@ namespace CarRental.FrontEnd
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
+            builder.Configuration.AddJsonFile("appsettings.json");
+
+            var settings = new AppSettings();
+            builder.Configuration.Bind(settings);
+
+            builder.Services.AddSingleton(settings);
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddHttpClient<CustomAuthenticationStateProvider>();
+
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 
             await builder.Build().RunAsync();
         }

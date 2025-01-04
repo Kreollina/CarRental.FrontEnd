@@ -1,0 +1,34 @@
+﻿@layout LoginLayout
+@page "/login"
+@attribute [AllowAnonymous]
+
+@inject CustomAuthenticationStateProvider CustomAuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<EditForm Model="loginModel" class="login-form" OnValidSubmit="HandleLoginAsync">
+    <div class="form-group">
+        <label>User Name:</label>
+        <InputText @bind-Value="loginModel.UserName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Password:</label>
+        <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private async Task HandleLoginAsync()
+    {
+        var userLogin = await CustomAuthenticationStateProvider.LoginAsync(loginModel.UserName, loginModel.Password);
+        if (userLogin)
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
+        else
+        {
+
+        }
+    }
+}
