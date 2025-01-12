@@ -1,0 +1,70 @@
+﻿@page "/customers"
+@using CarRental.FrontEnd.Services.Interfaces
+@inject ICustomerService CustomerService
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@customers" Hover="true" Striped="true" FixedHeader="true" FixedFooter="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Customers List</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.PersonAddAlt1" @onclick="AddNewCustomer">Create Customer</MudButton>
+        </ToolBarContent>
+        <HeaderContent>
+            @* <MudTh>Id</MudTh> *@
+            <MudTh>First Name</MudTh>
+            <MudTh>Last Name</MudTh>
+            <MudTh>Phone</MudTh>
+            <MudTh>Address</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            @* <MudTd DataLabel="Id">@context.CustomerID</MudTd> *@
+            <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+            <MudTd DataLabel="Phone">@context.Phone</MudTd>
+            <MudTd DataLabel="Address">@context.Address.Country,@context.Address.City, @context.Address.Street,@context.Address.PostalCode,</MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Warning" OnClick="() => UpdateCustomer(context.CustomerID)" />
+            </MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.PersonRemove" Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Error" OnClick="() => DeleteCustomer(context.CustomerID)" />
+            </MudTd>            
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private MudTheme Theme = new MudTheme();
+    private List<CustomerModel> customers;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetCustomersAsync();
+    }
+
+    private async Task AddNewCustomer(MouseEventArgs e)
+    {
+        NavigationManager.NavigateTo("/newcustomer", true);
+    }
+
+    private async Task UpdateCustomer(int id)
+    {        
+        NavigationManager.NavigateTo($"/updatecustomer/{id}", true);
+    }
+
+    private async Task DeleteCustomer(int customerId)
+    {
+        await CustomerService.DeleteCustomersAsync(customerId);
+        customers = await CustomerService.GetCustomersAsync();
+    }
+}

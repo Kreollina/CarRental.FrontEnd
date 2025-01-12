@@ -1,0 +1,71 @@
+﻿@page "/newcustomer"
+@using System.ComponentModel.DataAnnotations
+
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<h3>Add New Customer</h3>
+
+<EditForm Model="@model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="First Name" HelperText="Enter the first name" @bind-Value="model.FirstName" For="@(() => model.FirstName)" />
+                    <MudTextField Label="Last Name" HelperText="Enter the last name" Class="mt-3" @bind-Value="model.LastName" For="@(() => model.LastName)" />
+                    <MudTextField Label="Phone" HelperText="Enter the phone number" Class="mt-3" @bind-Value="model.Phone" For="@(() => model.Phone)" />
+
+                    <MudTextField Label="Country" HelperText="Enter the country" Class="mt-3" @bind-Value="model.Address.Country" For="@(() => model.Address.Country)" />
+                    <MudTextField Label="City" HelperText="Enter the city" Class="mt-3" @bind-Value="model.Address.City" For="@(() => model.Address.City)" />
+                    <MudTextField Label="Street" HelperText="Enter the street" Class="mt-3" @bind-Value="model.Address.Street" For="@(() => model.Address.Street)" />
+                    <MudTextField Label="Postal Code" HelperText="Enter the postal code" Class="mt-3" @bind-Value="model.Address.PostalCode" For="@(() => model.Address.PostalCode)" />
+
+                    <MudTextField Label="Email" HelperText="Enter the email address" Class="mt-3" @bind-Value="model.User.Email" For="@(() => model.User.Email)" />
+                    <MudTextField Label="Password" HelperText="Enter a strong password" Class="mt-3" @bind-Value="model.User.Password" For="@(() => model.User.Password)" InputType="InputType.Password" />
+                    <MudTextField Label="Repeat Password" HelperText="Repeat the password" Class="mt-3" @bind-Value="model.User.RepeatPassword" For="@(() => model.User.RepeatPassword)" InputType="InputType.Password" />
+                </MudCardContent>
+
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Tertiary" Class="ml-left mr-4">
+                        Create New Customer
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Clear" Color="Color.Secondary" OnClick="ClearForm" Class="mr-2">
+                        Clear form
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Transparent" OnClick="Cancel" Class="ml-auto mr-2">
+                        Cancel
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    private CustomerModel model = new() 
+    { 
+        Address = new AddressModel(), 
+        User = new UserModel() 
+    };
+
+    private async Task Submit()
+    {
+        var customer = await CustomerService.AddCustomersAsync(model);
+        if (customer != null)
+        {
+            NavigationManager.NavigateTo("/customers", true);
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/customers");
+    }
+
+    private void ClearForm()
+    {
+        model = new() { Address = new AddressModel(), User = new UserModel() };
+    }
+}

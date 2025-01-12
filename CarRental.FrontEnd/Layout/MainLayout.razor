@@ -1,26 +1,49 @@
 ﻿@inherits LayoutComponentBase
 
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <div class="page">
-                <div class="sidebar">
+            <MudLayout>
+
+                <MudAppBar Elevation="1" Color="Color.Tertiary">
+                    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+                    <MudText Typo="Typo.h5" Class="ml-3">CarRental</MudText>
+                    <MudSpacer />
+                </MudAppBar>
+
+                <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
                     <NavMenu />
-                </div>
+                </MudDrawer>
 
-                <main>
-                    <div class="top-row px-4">
-                        <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-                    </div>
+                <MudMainContent>                    
+                        <MudPaper Class="p-4 m-2">
+                            @Body
+                        </MudPaper>                    
+                </MudMainContent>
 
-                    <article class="content px-4">
-                        @Body
-                    </article>
-                </main>
-            </div>
+            </MudLayout>
         </Authorized>
         <NotAuthorized>
             <RedirectToLogin />
         </NotAuthorized>
     </AuthorizeView>
 </CascadingAuthenticationState>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

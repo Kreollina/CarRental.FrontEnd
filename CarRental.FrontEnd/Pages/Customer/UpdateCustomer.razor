@@ -1,0 +1,73 @@
+﻿@page "/updatecustomer/{id:int}"
+
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<h3>Update Customer</h3>
+
+<EditForm Model="@model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="First Name" @bind-Value="model.FirstName" For="@(() => model.FirstName)" />
+                    <MudTextField Label="Last Name" Class="mt-3" @bind-Value="model.LastName" For="@(() => model.LastName)" />
+                    <MudTextField Label="Phone" Class="mt-3" @bind-Value="model.Phone" For="@(() => model.Phone)" />
+
+                    <MudTextField Label="Country" Class="mt-3" @bind-Value="model.Address.Country" For="@(() => model.Address.Country)" />
+                    <MudTextField Label="City" Class="mt-3" @bind-Value="model.Address.City" For="@(() => model.Address.City)" />
+                    <MudTextField Label="Street" Class="mt-3" @bind-Value="model.Address.Street" For="@(() => model.Address.Street)" />
+                    <MudTextField Label="Postal Code" Class="mt-3" @bind-Value="model.Address.PostalCode" For="@(() => model.Address.PostalCode)" />
+
+                    <MudTextField Label="Email" Class="mt-3" @bind-Value="model.User.Email" For="@(() => model.User.Email)" />
+                    <MudTextField Label="Password" Class="mt-3" @bind-Value="model.User.Password" For="@(() => model.User.Password)" InputType="InputType.Password" />
+                    <MudTextField Label="Repeat Password" Class="mt-3" @bind-Value="model.User.RepeatPassword" For="@(() => model.User.RepeatPassword)" InputType="InputType.Password" />
+                </MudCardContent>
+
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Tertiary" Class="ml-left mr-2">
+                        Update Customer
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Clear" Color="Color.Secondary" OnClick="ClearForm" Class="mr-2">
+                        Clear
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Transparent" OnClick="Cancel" Class="ml-auto mr-2">
+                        Cancel
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Parameter] public int id { get; set; }    
+
+    private CustomerModel model { get; set; } = new CustomerModel
+    {
+        Address = new AddressModel(),
+        User = new UserModel()
+    };    
+
+    private async Task Submit()
+    {
+        var customer = await CustomerService.UpdateCustomersAsync(id, model);
+        if (customer != null)
+        {
+            NavigationManager.NavigateTo("/customers", true);
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/customers");
+    }
+
+    private void ClearForm()
+    {
+        model = new() { Address = new AddressModel(), User = new UserModel() };
+    }
+
+}
