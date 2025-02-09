@@ -1,7 +1,6 @@
 ﻿using CarRental.FrontEnd.Models;
 using CarRental.FrontEnd.Options;
 using CarRental.FrontEnd.Services.Interfaces;
-using static MudBlazor.Icons;
 using System.Text.Json;
 using System.Net.Http.Json;
 

@@ -1,0 +1,70 @@
+﻿@page "/reservations"
+
+@inject IReservationService ReservationService
+@inject NavigationManager NavigationManager
+
+@if (reservations == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@reservations" Hover="true" Striped="true" FixedHeader="true" FixedFooter="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Reservation List</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.PersonAddAlt1" @onclick="AddNewReservation">Create reservation</MudButton>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>ReservationID</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>DateFrom</MudTh>
+            <MudTh>DateTo</MudTh>
+            <MudTh>customerID</MudTh>
+            <MudTh>vehicleID</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.ReservationID</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="DateFrom">@context.DateFrom</MudTd>
+            <MudTd DataLabel="DateTo">@context.DateTo</MudTd>
+            <MudTd DataLabel="CustomerID">@context.CustomerID</MudTd>
+            <MudTd DataLabel="CustomerID">@context.VehicleID</MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Warning" OnClick="() => UpdateReservation(context.ReservationID)" />
+            </MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.PersonRemove" Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Error" OnClick="() => DeleteReservation(context.ReservationID)" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private MudTheme Theme = new MudTheme();
+    private List<ReservationModel> reservations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reservations = await ReservationService.GetReservationsAsync();
+    }
+
+    private async Task AddNewReservation(MouseEventArgs e)
+    {
+        NavigationManager.NavigateTo("/newreservation", true);
+    }
+
+    private async Task UpdateReservation(int id)
+    {
+        NavigationManager.NavigateTo($"/updatereservation/{id}", true);
+    }
+
+    private async Task DeleteReservation(int reservationId)
+    {
+        await ReservationService.DeleteReservationAsync(reservationId);
+        reservations = await ReservationService.GetReservationsAsync();
+    }
+}
