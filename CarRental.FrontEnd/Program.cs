@@ -41,6 +41,8 @@ namespace CarRental.FrontEnd
             builder.Services.AddHttpClient<ICustomerService, CustomerService>().AddHttpMessageHandler<AuthTokenHandler>();
             builder.Services.AddSingleton<IReservationService, ReservationService>();
             builder.Services.AddHttpClient<IReservationService, ReservationService>().AddHttpMessageHandler<AuthTokenHandler>();
+            builder.Services.AddSingleton<IVehicleService, VehicleService>();
+            builder.Services.AddHttpClient<IVehicleService, VehicleService>().AddHttpMessageHandler<AuthTokenHandler>();
 
             await builder.Build().RunAsync();
         }
