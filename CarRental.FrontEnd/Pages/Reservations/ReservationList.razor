@@ -1,7 +1,10 @@
 ﻿@page "/reservations"
+@using System.Data
+@using ClosedXML.Excel
 
 @inject IReservationService ReservationService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 @if (reservations == null)
 {
@@ -20,8 +23,8 @@ else
             <MudTh>Description</MudTh>
             <MudTh>DateFrom</MudTh>
             <MudTh>DateTo</MudTh>
-            <MudTh>customerID</MudTh>
-            <MudTh>vehicleID</MudTh>
+            <MudTh>CustomerID</MudTh>
+            <MudTh>VehicleID</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.ReservationID</MudTd>
@@ -41,6 +44,8 @@ else
             <MudTablePager />
         </PagerContent>
     </MudTable>
+
+    <MudButton Color="Color.Default" OnClick="GenerateExcel">Export to Excel</MudButton>
 }
 
 @code {
@@ -66,5 +71,43 @@ else
     {
         await ReservationService.DeleteReservationAsync(reservationId);
         reservations = await ReservationService.GetReservationsAsync();
+    }
+
+    private async Task GenerateExcel()
+    {
+        var data = await ReservationService.GetReservationsAsync();
+        var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("Reservations");
+        var headers = new [] { "ReservationID", "Description", "DateFrom", "DateTo", "CustomerID", "VehicleID" };
+        for (var i = 0; i < headers.Length; i++)
+        {
+            var headerCell = ws.Cell(1, i + 1);
+            headerCell.Value = headers[i];
+            headerCell.Style.Fill.BackgroundColor = XLColor.Glaucous;
+            headerCell.Style.Font.Bold = true;
+            headerCell.Style.Font.FontColor = XLColor.White;
+        }
+        
+        int rowIndex = 2;
+        foreach (var element in data)
+        {
+            ws.Cell(rowIndex, 1).Value = element.ReservationID;
+            ws.Cell(rowIndex, 2).Value = element.Description;
+            ws.Cell(rowIndex, 3).Value = element.DateFrom;
+            ws.Cell(rowIndex, 4).Value = element.DateTo;
+            ws.Cell(rowIndex, 5).Value = element.CustomerID;
+            ws.Cell(rowIndex, 6).Value = element.VehicleID;
+            rowIndex++;
+        }
+        ws.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+        ws.ColumnsUsed().AdjustToContents();
+
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+        ms.Position = 0;
+
+        using var streamReference = new DotNetStreamReference(ms);
+        var fileName = $"ReservationsFile_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamReference);
     }
 }

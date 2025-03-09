@@ -1,8 +1,8 @@
 using Blazored.LocalStorage;
 using CarRental.FrontEnd.Authentication;
 using CarRental.FrontEnd.Options;
-using CarRental.FrontEnd.Services.Interfaces;
 using CarRental.FrontEnd.Services;
+using CarRental.FrontEnd.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
