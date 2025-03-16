@@ -1,6 +1,7 @@
 ﻿using CarRental.FrontEnd.Models;
 using CarRental.FrontEnd.Options;
 using CarRental.FrontEnd.Services.Interfaces;
+using Microsoft.JSInterop;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -10,11 +11,13 @@ namespace CarRental.FrontEnd.Services
     {
         private readonly HttpClient _httpClient;
         private readonly AppSettings _appSettings;
+        private readonly IJSRuntime _JS;
 
-        public ReservationService(HttpClient httpClient, AppSettings appSettings)
+        public ReservationService(HttpClient httpClient, AppSettings appSettings, IJSRuntime JS)
         {
             _httpClient = httpClient;
             _appSettings = appSettings;
+            _JS = JS;
         }
 
         public async Task<ReservationModel> AddReservationAsync(ReservationModel newReservation)
@@ -68,6 +71,23 @@ namespace CarRental.FrontEnd.Services
                 PropertyNameCaseInsensitive = true,
             });
             return reservation;
+        }
+
+        public async Task ExportToExcelAsync() 
+        {
+            var response = await _httpClient.GetAsync($"{_appSettings.BackendApiUrl}/reservation/ExportToExcel");
+            if (response.IsSuccessStatusCode)
+            {
+                var sream = await response.Content.ReadAsStreamAsync();
+                using var ms = new MemoryStream();
+                await sream.CopyToAsync(ms);
+                ms.Position = 0;
+
+                using var streamReference = new DotNetStreamReference(ms);
+                var fileName = $"Reservations_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                await _JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamReference);
+
+            }
         }
     }
 }
